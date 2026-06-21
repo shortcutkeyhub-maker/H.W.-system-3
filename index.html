@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body { 
+            margin: 0; 
+            background: url('https://ac-p2.namu.la/20231231sac/d97dc962f498a5271daa943bd5834f218c23905478a9af990df12d8f8336d781.png?expires=1782033455&key=VzFCHb8WIzf8Fez1Mew6Bg') no-repeat center center fixed; 
+            background-size: cover; 
+            display: flex; 
+            justify-content: flex-start; 
+            align-items: center; 
+            height: 100vh; 
+            padding-left: 100px; 
+            font-family: sans-serif;
+        }
+        #todo-container { background: rgba(255, 255, 255, 0.85); padding: 40px; border-radius: 25px; width: 450px; }
+        .todo-item { display: flex; align-items: center; margin: 20px 0; font-size: 1.4em; }
+        .checkbox { width: 30px; height: 30px; border: 3px solid #ff79c6; border-radius: 10px; margin-right: 20px; cursor: pointer; display: flex; justify-content: center; align-items: center; }
+        .checked { background-color: #ff79c6; }
+        .checked::after { content: '✔'; color: white; font-weight: bold; }
+        
+        /* 취소선만 빨간색으로 스타일 적용 */
+        .done-text { 
+            text-decoration: line-through; 
+            text-decoration-color: red;
+            text-decoration-thickness: 2px;
+        }
+    </style>
+</head>
+<body>
+    <div id="todo-container">
+        <h1>오늘의 숙제</h1>
+        <div id="list"></div>
+    </div>
+    <script>
+        const GAS_URL = "https://script.google.com/macros/s/AKfycbzaL7Hn1n3GRroCP-RQLZ71hPZiZjHWGloT8j1UmqZVOJ7XTrvs4FYguFTnW5X-Idsd/exec";
+
+        async function load() {
+            try {
+                const res = await fetch(GAS_URL);
+                const data = await res.json();
+                const list = document.getElementById('list');
+                list.innerHTML = '';
+                data.forEach(item => {
+                    list.innerHTML += `
+                        <div class="todo-item">
+                            <div class="checkbox ${item.isDone ? 'checked' : ''}" onclick="done('${item.id}')"></div>
+                            <span class="${item.isDone ? 'done-text' : ''}">${item.content}</span>
+                        </div>`;
+                });
+            } catch (err) {
+                console.error("데이터 로딩 실패:", err);
+            }
+        }
+
+        async function done(id) {
+            await fetch(GAS_URL, { 
+                method: 'POST', 
+                body: JSON.stringify({ action: 'complete', id: id }) 
+            });
+            load();
+        }
+
+        load();
+    </script>
+</body>
+</html>
